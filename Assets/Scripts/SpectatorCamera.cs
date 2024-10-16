@@ -4,39 +4,20 @@ public class SpectatorCamera : MonoBehaviour
 {
     public float moveSpeed = 10f;
     public float sprintSpeed = 15f; // Movement speed
-    public float mouseSensitivity = 100f; // Mouse sensitivity for looking around
-    public float maxLookAngle = 85f;     // Max angle to prevent flipping
-    public Rigidbody rb;
 
-    private float yaw = 0f;
-    private float pitch = 0f;
+
+    public Rigidbody rb;
     private float currentSpeed;
 
     private void Start()
     {
-        // Lock cursor to the screen
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
     private void Update()
     {
-        // Handle rotation using the mouse
-        //HandleRotation();
         HandleMovement();
-    }
-
-    private void HandleRotation()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        yaw += mouseX;
-        pitch -= mouseY;
-        pitch = Mathf.Clamp(pitch, -maxLookAngle, maxLookAngle);
-
-        // Apply rotation
-        transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
     }
 
     private void HandleMovement()
