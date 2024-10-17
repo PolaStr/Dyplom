@@ -8,6 +8,7 @@ public class SpectatorCamera : MonoBehaviour
 
     public Rigidbody rb;
     private float currentSpeed;
+    private bool canMove = true;
 
     private void Start()
     {
@@ -17,7 +18,10 @@ public class SpectatorCamera : MonoBehaviour
 
     private void Update()
     {
+        if (canMove)
+        {
         HandleMovement();
+        }
     }
 
     private void HandleMovement()
@@ -44,8 +48,12 @@ public class SpectatorCamera : MonoBehaviour
         // Create movement vector based on camera direction
         Vector3 move = transform.right * moveX + transform.forward * moveZ + transform.up * moveY;
 
-        // Set the Rigidbody velocity to move the camera
         rb.velocity = move * currentSpeed;
+    }
+
+    private void OnDisable()
+    {
+        rb.velocity = Vector3.zero;
     }
 }
 

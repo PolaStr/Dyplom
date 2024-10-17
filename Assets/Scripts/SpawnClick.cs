@@ -3,18 +3,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Animations;
+using Unity.VisualScripting;
 
 public class SpawnClick : MonoBehaviour
 {
     [SerializeField] private Camera mainCamera;
     [SerializeField] private bool buildMode = false;
-    [SerializeField] private CinemachineBrain cmCam;
+    [SerializeField] private CinemachineVirtualCamera cmCam;
     [SerializeField] private SpectatorCamera camMovement;
     [SerializeField] private CinemachineImpulseSource impulseSrc;
     [SerializeField] private LayerMask layerMask;
 
+    public float gridSize = 2.0f;
+
     private GameObject currentPreview;
     private GameObject currentPrefab;
+
+    private float currentRotation = 0f;
 
     [SerializeField] private GameObject obj1, obj1Preview, obj2, obj2Preview;
 
@@ -22,13 +28,27 @@ public class SpawnClick : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.B) && buildMode == false)
         {
             buildMode = true;
-            //camMovement.enabled = false;
-            //cmCam.enabled = false;
+            camMovement.enabled = false;
+            cmCam.enabled = false;
+            
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+        }
+        else if (Input.GetKeyDown(KeyCode.B) && buildMode!= false)
+        {
+            buildMode = false;
+            camMovement.enabled = true;
+            cmCam.enabled = true;
+
+
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
+            DestroyPreviewAndTween();
         }
 
         if (buildMode)
@@ -51,25 +71,19 @@ public class SpawnClick : MonoBehaviour
             }
 
             UpdatePreviewPosition();
+            RotateObject();
 
-            if (Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0) && currentPrefab != null)
             {
                 PlacePrefab();
             }
         }
+
     }
 
     void HandleButtonPress(int buttonNumber)
     {
-        if (previewDT != null && previewDT.IsActive())
-        {
-            previewDT.Kill();
-        }
-        // Destroy the existing preview before creating a new one
-        if (currentPreview != null)
-        {
-            Destroy(currentPreview);
-        }
+        DestroyPreviewAndTween();
 
         switch (buttonNumber)
         {
@@ -77,11 +91,13 @@ public class SpawnClick : MonoBehaviour
                 Debug.Log("Button 1 pressed");
                 currentPrefab = obj1;
                 currentPreview = Instantiate(obj1Preview); // Instantiate the preview
+                currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
                 break;
             case 2:
                 Debug.Log("Button 2 pressed");
                 currentPrefab = obj2;
                 currentPreview = Instantiate(obj2Preview); // Instantiate the preview
+                currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
                 break;
             case 3:
                 Debug.Log("Button 3 pressed");
@@ -111,7 +127,9 @@ public class SpawnClick : MonoBehaviour
                 previewDT.Kill();
             }
 
-            previewDT = currentPreview.transform.DOMove(new Vector3(hit.point.x, hit.point.y, hit.point.z), 0.2f);
+            Vector3 snappedPosition = SnapToGrid(hit.point);
+
+            previewDT = currentPreview.transform.DOMove(snappedPosition, 0.2f);
         }
     }
 
@@ -122,23 +140,51 @@ public class SpawnClick : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
         {
-            Instantiate(currentPrefab, hit.point, Quaternion.identity);
+            Vector3 snappedPosition = SnapToGrid(hit.point);
+
+            Instantiate(currentPrefab, snappedPosition, Quaternion.Euler(0, currentRotation, 0));
 
             impulseSrc.GenerateImpulse();
         }
     }
 
-    //public void ExitBuildMode()
-    //{
-    //    buildMode = false;
-    //    camMovement.enabled = true;
-    //    cmCam.enabled = true;
-    //    Cursor.lockState = CursorLockMode.Locked;
-    //    Cursor.visible = false;
+    private Vector3 SnapToGrid(Vector3 originalPosition)
+    {
+        float x = Mathf.Round(originalPosition.x / gridSize) * gridSize;
+        float y = Mathf.Round(originalPosition.y / gridSize) * gridSize;
+        float z = Mathf.Round(originalPosition.z / gridSize) * gridSize;
 
-    //    if (currentPreview != null)
-    //    {
-    //        Destroy(currentPreview);
-    //    }
-    //}
+        return new Vector3(x, y, z);
+    }
+
+    private void DestroyPreviewAndTween()
+    {
+        if (previewDT != null && previewDT.IsActive())
+        {
+            previewDT.Kill();
+        }
+        // Destroy the existing preview before creating a new one
+        if (currentPreview != null)
+        {
+            Destroy(currentPreview);
+        }
+    }
+
+    private void RotateObject()
+    {
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            currentRotation -= 90f; // Rotate counter-clockwise
+            //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+
+            currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            currentRotation += 90f; // Rotate clockwise
+                                    //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+
+            currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
+        }
+    }
 }

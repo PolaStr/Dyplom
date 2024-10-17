@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8084377664454606738}
   - component: {fileID: 8930579070746748491}
   - component: {fileID: 5006392425146738672}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4844,7 +4844,7 @@ GameObject:
   - component: {fileID: 7417419507774865836}
   - component: {fileID: 1246518017133291194}
   - component: {fileID: 6382158296925681079}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Pipe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4860,7 +4860,7 @@ Transform:
   m_GameObject: {fileID: 8321676253141950547}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -1, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
