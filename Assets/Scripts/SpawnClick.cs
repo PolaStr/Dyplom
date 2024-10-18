@@ -15,6 +15,8 @@ public class SpawnClick : MonoBehaviour
     [SerializeField] private CinemachineImpulseSource impulseSrc;
     [SerializeField] private LayerMask layerMask;
 
+    [SerializeField] private Material grid;
+
     public float gridSize = 2.0f;
 
     private GameObject currentPreview;
@@ -22,9 +24,10 @@ public class SpawnClick : MonoBehaviour
 
     private float currentRotation = 0f;
 
-    [SerializeField] private GameObject obj1, obj1Preview, obj2, obj2Preview;
+    [SerializeField] private GameObject obj1, obj1Preview, obj2, obj2Preview, obj3, obj3Preview;
 
     private Tween previewDT;
+    private bool gridVisable = false;
 
     private void Update()
     {
@@ -33,6 +36,8 @@ public class SpawnClick : MonoBehaviour
             buildMode = true;
             camMovement.enabled = false;
             cmCam.enabled = false;
+            FadeGrid();
+            gridVisable = true;
             
 
             Cursor.lockState = CursorLockMode.None;
@@ -43,6 +48,9 @@ public class SpawnClick : MonoBehaviour
             buildMode = false;
             camMovement.enabled = true;
             cmCam.enabled = true;
+
+            FadeGrid();
+            gridVisable = false;
 
 
             Cursor.lockState = CursorLockMode.Locked;
@@ -101,6 +109,9 @@ public class SpawnClick : MonoBehaviour
                 break;
             case 3:
                 Debug.Log("Button 3 pressed");
+                currentPrefab = obj3;
+                currentPreview = Instantiate(obj3Preview); // Instantiate the preview
+                currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
                 // Add your logic here
                 break;
             case 4:
@@ -185,6 +196,18 @@ public class SpawnClick : MonoBehaviour
                                     //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
             currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
+        }
+    }
+
+    private void FadeGrid()
+    {
+        if (gridVisable == true)
+        {
+            grid.DOColor(new Vector4(1, 1, 1, 0f), 1f);
+        }
+        else if (gridVisable == false)
+        {
+            grid.DOColor(new Vector4(1, 1, 1, 0.25f), 1f);
         }
     }
 }
