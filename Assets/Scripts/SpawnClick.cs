@@ -1,10 +1,7 @@
 using Cinemachine;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
-using UnityEngine.Animations;
-using Unity.VisualScripting;
+using UnityEngine.EventSystems;
 
 public class SpawnClick : MonoBehaviour
 {
@@ -24,10 +21,19 @@ public class SpawnClick : MonoBehaviour
 
     private float currentRotation = 0f;
 
-    [SerializeField] private GameObject obj1, obj1Preview, obj2, obj2Preview, obj3, obj3Preview;
+    //[SerializeField] private GameObject obj1, obj1Preview, obj2, obj2Preview, obj3, obj3Preview;
+
+    [SerializeField] private PropSO prop1, prop2, prop3;
+    [SerializeField] private GameObject buildRing;
 
     private Tween previewDT;
+    private Tween ringPreviewDT;
     private bool gridVisable = false;
+
+    private void Start()
+    {
+        grid.color = Color.clear;
+    }
 
     private void Update()
     {
@@ -38,7 +44,6 @@ public class SpawnClick : MonoBehaviour
             cmCam.enabled = false;
             FadeGrid();
             gridVisable = true;
-            
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -56,6 +61,7 @@ public class SpawnClick : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
 
+            Destroy(buildRing);
             DestroyPreviewAndTween();
         }
 
@@ -89,7 +95,7 @@ public class SpawnClick : MonoBehaviour
 
     }
 
-    void HandleButtonPress(int buttonNumber)
+    public void HandleButtonPress(int buttonNumber)
     {
         DestroyPreviewAndTween();
 
@@ -97,26 +103,34 @@ public class SpawnClick : MonoBehaviour
         {
             case 1:
                 Debug.Log("Button 1 pressed");
-                currentPrefab = obj1;
-                currentPreview = Instantiate(obj1Preview); // Instantiate the preview
+                currentPrefab = prop1.model;
+
+                currentPreview = Instantiate(prop1.model);
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+                currentPreview.GetComponent<Collider>().enabled = false;
+
+                buildRing.transform.localScale = prop1.spriteSize;
                 break;
             case 2:
                 Debug.Log("Button 2 pressed");
-                currentPrefab = obj2;
-                currentPreview = Instantiate(obj2Preview); // Instantiate the preview
+                currentPrefab = prop2.model;
+
+                currentPreview = Instantiate(prop2.model);
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+
+                buildRing.transform.localScale = prop2.spriteSize;
                 break;
             case 3:
                 Debug.Log("Button 3 pressed");
-                currentPrefab = obj3;
-                currentPreview = Instantiate(obj3Preview); // Instantiate the preview
+                currentPrefab = prop3.model;
+
+                currentPreview = Instantiate(prop3.model);
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
-                // Add your logic here
+
+                buildRing.transform.localScale = prop3.spriteSize;
                 break;
             case 4:
                 Debug.Log("Button 4 pressed");
-                // Add your logic here
                 break;
             default:
                 Debug.Log("Unknown button pressed");
@@ -141,11 +155,19 @@ public class SpawnClick : MonoBehaviour
             Vector3 snappedPosition = SnapToGrid(hit.point);
 
             previewDT = currentPreview.transform.DOMove(snappedPosition, 0.2f);
+            ringPreviewDT = buildRing.transform.DOMove(snappedPosition, 0.2f);
         }
     }
 
     private void PlacePrefab()
     {
+        // Check if the pointer is over a UI element
+        if (EventSystem.current.IsPointerOverGameObject())
+        {
+            // If it's over UI, stop the raycast from going further
+            return;
+        }
+
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
@@ -185,14 +207,14 @@ public class SpawnClick : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            currentRotation -= 90f; // Rotate counter-clockwise
+            currentRotation -= 45f; // Rotate counter-clockwise
             //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
             currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
-            currentRotation += 90f; // Rotate clockwise
+            currentRotation += 45f; // Rotate clockwise
                                     //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
             currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
@@ -203,11 +225,13 @@ public class SpawnClick : MonoBehaviour
     {
         if (gridVisable == true)
         {
-            grid.DOColor(new Vector4(1, 1, 1, 0f), 1f);
+            grid.DOColor(new Vector4(1, 1, 1, 0f), 0.5f)
+                .SetEase(Ease.InOutQuad);
         }
         else if (gridVisable == false)
         {
-            grid.DOColor(new Vector4(1, 1, 1, 0.25f), 1f);
+            grid.DOColor(new Vector4(1, 1, 1, 0.25f), 0.5f)
+                .SetEase(Ease.InOutQuad);
         }
     }
 }
