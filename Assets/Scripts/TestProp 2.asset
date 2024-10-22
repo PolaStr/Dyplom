@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   model: {fileID: 3784003786695244275, guid: 54d5e52147f42614dabfd5d2df86008d, type: 3}
   modelName: 
-  spriteSize: {x: 0.2, y: 0.2, z: 0.2}
+  decalSize: {x: 1, y: 1, z: 1}

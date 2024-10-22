@@ -5,5 +5,5 @@ public class PropSO : ScriptableObject
 {
     public GameObject model;
     public string modelName;
-    public Vector3 spriteSize;
+    public Vector3 decalSize;
 }

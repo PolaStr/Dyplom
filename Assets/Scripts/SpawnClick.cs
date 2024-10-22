@@ -2,6 +2,7 @@ using Cinemachine;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering.HighDefinition;
 
 public class SpawnClick : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class SpawnClick : MonoBehaviour
 
     private Tween previewDT;
     private Tween ringPreviewDT;
+    private GameObject currentBuildRing;
     private bool gridVisable = false;
 
     private void Start()
@@ -61,7 +63,6 @@ public class SpawnClick : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
 
-            Destroy(buildRing);
             DestroyPreviewAndTween();
         }
 
@@ -87,6 +88,13 @@ public class SpawnClick : MonoBehaviour
             UpdatePreviewPosition();
             RotateObject();
 
+            if (!buildMode && currentBuildRing != null)
+            {
+                Destroy(currentBuildRing);
+                currentBuildRing = null;
+            }
+
+
             if (Input.GetMouseButtonDown(0) && currentPrefab != null)
             {
                 PlacePrefab();
@@ -99,6 +107,17 @@ public class SpawnClick : MonoBehaviour
     {
         DestroyPreviewAndTween();
 
+        if (currentBuildRing == null)
+        {
+            // Instantiate the build ring if it doesn't exist
+            currentBuildRing = Instantiate(buildRing);
+        }
+        else
+        {
+            // Update the existing build ring
+            currentBuildRing.SetActive(true);
+        }
+
         switch (buttonNumber)
         {
             case 1:
@@ -109,7 +128,7 @@ public class SpawnClick : MonoBehaviour
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
                 currentPreview.GetComponent<Collider>().enabled = false;
 
-                buildRing.transform.localScale = prop1.spriteSize;
+                buildRing.GetComponent<DecalProjector>().size = prop1.decalSize;
                 break;
             case 2:
                 Debug.Log("Button 2 pressed");
@@ -118,7 +137,7 @@ public class SpawnClick : MonoBehaviour
                 currentPreview = Instantiate(prop2.model);
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
-                buildRing.transform.localScale = prop2.spriteSize;
+                buildRing.GetComponent<DecalProjector>().size = prop2.decalSize;
                 break;
             case 3:
                 Debug.Log("Button 3 pressed");
@@ -127,7 +146,7 @@ public class SpawnClick : MonoBehaviour
                 currentPreview = Instantiate(prop3.model);
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
-                buildRing.transform.localScale = prop3.spriteSize;
+                buildRing.GetComponent<DecalProjector>().size = prop3.decalSize;
                 break;
             case 4:
                 Debug.Log("Button 4 pressed");
@@ -207,14 +226,14 @@ public class SpawnClick : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            currentRotation -= 45f; // Rotate counter-clockwise
+            currentRotation -= 90f; // Rotate counter-clockwise
             //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
             currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
-            currentRotation += 45f; // Rotate clockwise
+            currentRotation += 90f; // Rotate clockwise
                                     //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
             currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
