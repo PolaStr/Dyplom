@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50f2947dc10043545bf00fe355cbbd0c, type: 3}
   m_Name: TestProp
   m_EditorClassIdentifier: 
-  model: {fileID: 3115509498498829508, guid: 13628ab0a34327e4188de2030a4db290, type: 3}
+  model: {fileID: 1945900227310826321, guid: f738f4455095e384d9517c1673d169d7, type: 3}
   modelName: 
-  decalSize: {x: 2, y: 2, z: 1}
+  decalSize: {x: 1.25, y: 1.25, z: 1}

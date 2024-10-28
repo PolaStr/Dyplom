@@ -13,10 +13,6 @@ public class SpawnClick : MonoBehaviour
     [SerializeField] private CinemachineImpulseSource impulseSrc;
     [SerializeField] private LayerMask layerMask;
 
-    [SerializeField] private Material grid;
-
-    public float gridSize = 2.0f;
-
     private GameObject currentPreview;
     private GameObject currentPrefab;
 
@@ -27,15 +23,11 @@ public class SpawnClick : MonoBehaviour
     [SerializeField] private PropSO prop1, prop2, prop3;
     [SerializeField] private GameObject buildRing;
 
+    [SerializeField] private GridSizeController gridController;
+
     private Tween previewDT;
     private Tween ringPreviewDT;
     private GameObject currentBuildRing;
-    private bool gridVisable = false;
-
-    private void Start()
-    {
-        grid.color = Color.clear;
-    }
 
     private void Update()
     {
@@ -44,8 +36,8 @@ public class SpawnClick : MonoBehaviour
             buildMode = true;
             camMovement.enabled = false;
             cmCam.enabled = false;
-            FadeGrid();
-            gridVisable = true;
+            gridController.FadeGrid();
+            gridController.gridVisable = true;
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -56,15 +48,17 @@ public class SpawnClick : MonoBehaviour
             camMovement.enabled = true;
             cmCam.enabled = true;
 
-            FadeGrid();
-            gridVisable = false;
+            gridController.FadeGrid();
+            gridController.gridVisable = false;
 
 
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            currentBuildRing.SetActive(false);
 
             DestroyPreviewAndTween();
         }
+
 
         if (buildMode)
         {
@@ -88,19 +82,12 @@ public class SpawnClick : MonoBehaviour
             UpdatePreviewPosition();
             RotateObject();
 
-            if (!buildMode && currentBuildRing != null)
-            {
-                Destroy(currentBuildRing);
-                currentBuildRing = null;
-            }
-
 
             if (Input.GetMouseButtonDown(0) && currentPrefab != null)
             {
                 PlacePrefab();
             }
         }
-
     }
 
     public void HandleButtonPress(int buttonNumber)
@@ -128,7 +115,7 @@ public class SpawnClick : MonoBehaviour
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
                 currentPreview.GetComponent<Collider>().enabled = false;
 
-                buildRing.GetComponent<DecalProjector>().size = prop1.decalSize;
+                currentBuildRing.GetComponent<DecalProjector>().size = prop1.decalSize;
                 break;
             case 2:
                 Debug.Log("Button 2 pressed");
@@ -137,7 +124,7 @@ public class SpawnClick : MonoBehaviour
                 currentPreview = Instantiate(prop2.model);
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
-                buildRing.GetComponent<DecalProjector>().size = prop2.decalSize;
+                currentBuildRing.GetComponent<DecalProjector>().size = prop2.decalSize;
                 break;
             case 3:
                 Debug.Log("Button 3 pressed");
@@ -146,7 +133,7 @@ public class SpawnClick : MonoBehaviour
                 currentPreview = Instantiate(prop3.model);
                 currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
-                buildRing.GetComponent<DecalProjector>().size = prop3.decalSize;
+                currentBuildRing.GetComponent<DecalProjector>().size = prop3.decalSize;
                 break;
             case 4:
                 Debug.Log("Button 4 pressed");
@@ -171,10 +158,10 @@ public class SpawnClick : MonoBehaviour
                 previewDT.Kill();
             }
 
-            Vector3 snappedPosition = SnapToGrid(hit.point);
+            Vector3 snappedPosition = gridController.SnapToGrid(hit.point);
 
             previewDT = currentPreview.transform.DOMove(snappedPosition, 0.2f);
-            ringPreviewDT = buildRing.transform.DOMove(snappedPosition, 0.2f);
+            ringPreviewDT = currentBuildRing.transform.DOMove(snappedPosition, 0.2f);
         }
     }
 
@@ -192,21 +179,12 @@ public class SpawnClick : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
         {
-            Vector3 snappedPosition = SnapToGrid(hit.point);
+            Vector3 snappedPosition = gridController.SnapToGrid(hit.point);
 
             Instantiate(currentPrefab, snappedPosition, Quaternion.Euler(0, currentRotation, 0));
 
             impulseSrc.GenerateImpulse();
         }
-    }
-
-    private Vector3 SnapToGrid(Vector3 originalPosition)
-    {
-        float x = Mathf.Round(originalPosition.x / gridSize) * gridSize;
-        float y = Mathf.Round(originalPosition.y / gridSize) * gridSize;
-        float z = Mathf.Round(originalPosition.z / gridSize) * gridSize;
-
-        return new Vector3(x, y, z);
     }
 
     private void DestroyPreviewAndTween()
@@ -237,20 +215,6 @@ public class SpawnClick : MonoBehaviour
                                     //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
             currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
-        }
-    }
-
-    private void FadeGrid()
-    {
-        if (gridVisable == true)
-        {
-            grid.DOColor(new Vector4(1, 1, 1, 0f), 0.5f)
-                .SetEase(Ease.InOutQuad);
-        }
-        else if (gridVisable == false)
-        {
-            grid.DOColor(new Vector4(1, 1, 1, 0.25f), 0.5f)
-                .SetEase(Ease.InOutQuad);
         }
     }
 }
