@@ -4,6 +4,6 @@ using UnityEngine;
 public class PropSO : ScriptableObject
 {
     public GameObject model;
-    public string modelName;
-    public Vector3 decalSize;
+    public string modelName = "noname";
+    public Vector3 decalSize = new Vector3(1,1,1);
 }

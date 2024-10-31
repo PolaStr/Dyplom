@@ -10,11 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50f2947dc10043545bf00fe355cbbd0c, type: 3}
-  m_Name: TestProp
+  m_Name: TestProp 4
   m_EditorClassIdentifier: 
-  model: {fileID: 7617630639020679796, guid: 76f550a51c3bf6f43a43b85b2dcb7e43, type: 3}
+  model: {fileID: 381186302093339061, guid: 628120584d33c3349821f4f247d8d2ce, type: 3}
   modelName: 
-  decalSize: {x: 1.25, y: 1.25, z: 1}
-  availableLayers:
-    serializedVersion: 2
-    m_Bits: 64
+  decalSize: {x: 1, y: 1, z: 1}

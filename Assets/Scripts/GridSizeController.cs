@@ -7,6 +7,7 @@ using TMPro;
 public class GridSizeController : MonoBehaviour
 {
     public float gridScale = 2.0f;
+    public float verticalGrid = 2.0f;
     public bool gridVisable = false;
 
     [SerializeField] private GameObject gridObj;
@@ -48,14 +49,14 @@ public class GridSizeController : MonoBehaviour
 
     private void ChangeGridHeight()
     {
-        if (Input.GetKeyDown(KeyCode.RightBracket) && height >= 2.5f)
+        if (Input.GetKeyDown(KeyCode.RightBracket) && height >= verticalGrid)
         {
-            height -= 2.5f;
+            height -= verticalGrid;
             gridObj.transform.position = new Vector3(0, 0.1f + height, 0);
         }
         if (Input.GetKeyDown(KeyCode.LeftBracket))
         {
-            height += 2.5f;
+            height += verticalGrid;
             gridObj.transform.position = new Vector3(0, 0.1f + height, 0);
         }
     }

@@ -3,6 +3,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.EventSystems;
 using UnityEngine.Rendering.HighDefinition;
+using System.Collections.Generic;
 
 public class SpawnClick : MonoBehaviour
 {
@@ -18,9 +19,7 @@ public class SpawnClick : MonoBehaviour
 
     private float currentRotation = 0f;
 
-    //[SerializeField] private GameObject obj1, obj1Preview, obj2, obj2Preview, obj3, obj3Preview;
-
-    [SerializeField] private PropSO prop1, prop2, prop3;
+    [SerializeField] private List<PropSO> props;
     [SerializeField] private GameObject buildRing;
 
     [SerializeField] private GridSizeController gridController;
@@ -29,13 +28,15 @@ public class SpawnClick : MonoBehaviour
     private Tween ringPreviewDT;
     private GameObject currentBuildRing;
 
+    private PropSO selectedProp;
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.B) && buildMode == false)
         {
             buildMode = true;
-            camMovement.enabled = false;
-            cmCam.enabled = false;
+            //camMovement.enabled = false;
+           // cmCam.enabled = false;
             gridController.FadeGrid();
             gridController.gridVisable = true;
 
@@ -45,8 +46,8 @@ public class SpawnClick : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.B) && buildMode!= false)
         {
             buildMode = false;
-            camMovement.enabled = true;
-            cmCam.enabled = true;
+            //camMovement.enabled = true;
+            //cmCam.enabled = true;
 
             gridController.FadeGrid();
             gridController.gridVisable = false;
@@ -64,17 +65,21 @@ public class SpawnClick : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
-                HandleButtonPress(1);
+                HandleButtonPress(0);
             }
             else if (Input.GetKeyDown(KeyCode.Alpha2))
             {
-                HandleButtonPress(2);
+                HandleButtonPress(1);
             }
             else if (Input.GetKeyDown(KeyCode.Alpha3))
             {
-                HandleButtonPress(3);
+                HandleButtonPress(2);
             }
             else if (Input.GetKeyDown(KeyCode.Alpha4))
+            {
+                HandleButtonPress(3);
+            }
+            else if (Input.GetKeyDown(KeyCode.Alpha5))
             {
                 HandleButtonPress(4);
             }
@@ -90,7 +95,7 @@ public class SpawnClick : MonoBehaviour
         }
     }
 
-    public void HandleButtonPress(int buttonNumber)
+    public void HandleButtonPress(int selectedPropIndex)
     {
         DestroyPreviewAndTween();
 
@@ -105,44 +110,20 @@ public class SpawnClick : MonoBehaviour
             currentBuildRing.SetActive(true);
         }
 
-        switch (buttonNumber)
-        {
-            case 1:
-                Debug.Log("Button 1 pressed");
-                currentPrefab = prop1.model;
+        if (selectedPropIndex < 0 || selectedPropIndex >= props.Count) return;
 
-                currentPreview = Instantiate(prop1.model);
-                currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
-                currentPreview.GetComponent<Collider>().enabled = false;
+        Debug.Log($"Button {selectedPropIndex + 1} pressed");
+        PropSO selectedProp = props[selectedPropIndex];
 
-                currentBuildRing.GetComponent<DecalProjector>().size = prop1.decalSize;
-                break;
-            case 2:
-                Debug.Log("Button 2 pressed");
-                currentPrefab = prop2.model;
+        currentPrefab = selectedProp.model;
 
-                currentPreview = Instantiate(prop2.model);
-                currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+        currentPreview = Instantiate(selectedProp.model);
+        currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
+        currentPreview.GetComponent<Collider>().enabled = false;
 
-                currentBuildRing.GetComponent<DecalProjector>().size = prop2.decalSize;
-                break;
-            case 3:
-                Debug.Log("Button 3 pressed");
-                currentPrefab = prop3.model;
-
-                currentPreview = Instantiate(prop3.model);
-                currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
-
-                currentBuildRing.GetComponent<DecalProjector>().size = prop3.decalSize;
-                break;
-            case 4:
-                Debug.Log("Button 4 pressed");
-                break;
-            default:
-                Debug.Log("Unknown button pressed");
-                break;
-        }
+        currentBuildRing.GetComponent<DecalProjector>().size = selectedProp.decalSize;
     }
+
 
 
     private void UpdatePreviewPosition()
@@ -151,7 +132,7 @@ public class SpawnClick : MonoBehaviour
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask) && currentPreview != null)
+        if (Physics.Raycast(ray, out hit, 50f, layerMask) && currentPreview != null)
         {
             if (previewDT != null && previewDT.IsActive())
             {
@@ -177,7 +158,7 @@ public class SpawnClick : MonoBehaviour
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
+        if (Physics.Raycast(ray, out hit, 50f, layerMask))
         {
             Vector3 snappedPosition = gridController.SnapToGrid(hit.point);
 
@@ -202,14 +183,14 @@ public class SpawnClick : MonoBehaviour
 
     private void RotateObject()
     {
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             currentRotation -= 90f; // Rotate counter-clockwise
             //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
 
             currentPreview.transform.DORotate(new Vector3(0, currentRotation, 0), 0.2f);
         }
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.T))
         {
             currentRotation += 90f; // Rotate clockwise
                                     //currentPreview.transform.rotation = Quaternion.Euler(0, currentRotation, 0);
